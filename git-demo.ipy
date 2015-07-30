@@ -1,0 +1,52 @@
+import time, argparse
+parser = argparse.ArgumentParser(description='Shows file contents in ' +
+        'working tree and index, and commit history',
+        usage='ipython gitdemo.ipy -- [-h] [--lines LINES] file')
+parser.add_argument("--lines",default=4,help='number of lines to display',
+                    type=int)
+parser.add_argument('file',help='file to track in git repo demo')
+args = parser.parse_args()
+
+def print_lines(data):
+    for line in data:
+    	print(line)
+    for i in range(args.lines - len(data)):
+        print('    ')
+
+def print_header(text):
+    print(text)
+    print('-'*26)    
+
+working_save = ''
+index_save = ''
+repo_save = 'wrong'  # forces first print to happen always
+
+while True:
+    working = !cat $args.file
+    if (len(working) == 0) or ("No such file" in working[0]):
+        working = ""
+        
+    temp = !git ls-files -s
+    if temp:
+        temp = temp[0].split()[1]
+        temp = temp[0:7]
+        index = !git cat-file -p $temp
+    else:
+        index = ""
+        
+    repo = !git log --oneline --decorate --all
+    if "fatal" in repo[0]:
+        repo = ""
+        
+    if (working != working_save) or (index != index_save) or (repo != repo_save):
+        !clear
+        print_header('Working Directory')
+        print_lines(working)
+        print_header('Index (Staging Area)')
+        print_lines(index)
+        print_header('Repository')
+        print_lines(repo)
+        working_save = working
+        index_save = index
+        repo_save = repo
+    time.sleep(1)
