@@ -1,12 +1,13 @@
 import time, argparse
 parser = argparse.ArgumentParser(description='Shows file contents in ' +
-        'working tree and index, and commit history',
+        'working tree, index, and commit history',
         usage='ipython gitdemo.ipy -- [-h] [--lines LINES] file')
 parser.add_argument("--lines",default=4,help='number of lines to display',
                     type=int)
-parser.add_argument('file',help='file to track in git repo demo')
+parser.add_argument("file",help='file to track in git repo demo')
 args = parser.parse_args()
 
+# Define some helper functions
 def print_lines(data):
     for line in data:
     	print(line)
@@ -14,13 +15,15 @@ def print_lines(data):
         print('    ')
 
 def print_header(text):
-    print(text)
+    print('\033[1m' + text + '\033[0m')
     print('-'*26)    
 
+# Initialize each section
 working_save = ''
 index_save = ''
 repo_save = 'wrong'  # forces first print to happen always
 
+# Main loop
 while True:
     working = !cat $args.file
     if (len(working) == 0) or ("No such file" in working[0]):
@@ -29,12 +32,12 @@ while True:
     temp = !git ls-files -s
     if temp:
         temp = temp[0].split()[1]
-        temp = temp[0:7]
+        temp = temp[:7]
         index = !git cat-file -p $temp
     else:
         index = ""
         
-    repo = !git log --oneline --decorate --all
+    repo = !git log --oneline --decorate --all --graph
     if "fatal" in repo[0]:
         repo = ""
         
